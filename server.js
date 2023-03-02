@@ -5,7 +5,11 @@ const app = express();
 app.use(express.urlencoded({extended: true}));
 
 const MongoClient = require('mongodb').MongoClient;
-MongoClient.connect('', function(err, client){
+var db;
+MongoClient.connect('url', function(err, client){
+    if(err) return console.log(err);
+    db = client.db('todoapp');
+
     //서버 생성(포트, 함수)
     app.listen(8080, function(){
         console .log('listening on 8080');
@@ -34,5 +38,7 @@ app.get('/write', function(req, res){
 })
 
 app.post('/add', function(req, res){
-    res.send('전송완료');
+    db.collection('post').insertOne({title: req.body.title, date: req.body.date}, function(err, res2){
+        res.send('저장완료');
+    })
 })
