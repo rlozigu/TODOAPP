@@ -2,12 +2,15 @@
 const express = require('express');
 //객체 생성
 const app = express();
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({extended: true}));
 
-//서버 생성(포트, 함수)
-app.listen(8080, function(){
-    console .log('listening on 8080');
-});
+const MongoClient = require('mongodb').MongoClient;
+MongoClient.connect('', function(err, client){
+    //서버 생성(포트, 함수)
+    app.listen(8080, function(){
+        console .log('listening on 8080');
+    });
+})
 
 /*get(param1, param2)
 param2의 형태가 함수임
