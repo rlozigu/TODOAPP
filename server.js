@@ -5,8 +5,10 @@ const app = express();
 app.use(express.urlencoded({extended: true}));
 
 const MongoClient = require('mongodb').MongoClient;
+app.set('view engine', 'ejs');
+
 var db;
-MongoClient.connect('url', function(err, client){
+MongoClient.connect('mongodb+srv://admin:aaaiii123@cluster0.ree0v9d.mongodb.net/?retryWrites=true&w=majority', function(err, client){
     if(err) return console.log(err);
     db = client.db('todoapp');
 
@@ -41,4 +43,8 @@ app.post('/add', function(req, res){
     db.collection('post').insertOne({title: req.body.title, date: req.body.date}, function(err, res2){
         res.send('저장완료');
     })
+})
+
+app.get('/list', function(req, res){
+    res.render('list.ejs');
 })
