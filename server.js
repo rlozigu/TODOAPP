@@ -46,5 +46,11 @@ app.post('/add', function(req, res){
 })
 
 app.get('/list', function(req, res){
-    res.render('list.ejs');
+    //db에 저장된 post 라는 collection 안의 모든 데이터 꺼내기
+    db.collection('post').find().toArray(function(err, res1){
+        if(err){
+            console.log(err);
+        }
+         res.render('list.ejs', {posts: res1});
+    });
 })
