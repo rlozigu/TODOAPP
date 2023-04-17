@@ -40,16 +40,21 @@ app.get('/write', function(req, res){
 })
 
 app.post('/add', function(req, res){
-    res.send('전송완료');
     db.collection('counter').findOne({name: '게시물갯수'}, function(err, res2){
         var totalPost = res2.totalPost;
 
         db.collection('post').insertOne({_id: totalPost + 1, title: req.body.title, date: req.body.date}, function(err, res2){
-            res.send('저장완료');
+            //counter 콜렉션에 있는 totalPost 항목 1 증가
+            //db.collection('counter').updateOne({수정할 항목},{수정할 값},function(){});
+            //operator >> set(변경), inc(증가, 음수도 가능), min(기존값보다 적을 때만 변경), rename(key값 이름변경) 등..
+            db.collection('counter').updateOne({name: '게시물갯수'},{ $inc: {totalPost: 1}},function(err, res2){
+                if(err){
+                    return console.log(err)
+                }
+                res.send('저장완료');
+            });
         })
 
-        //counter 콜렉션에 있는 totalPost 항목 1 증가
-        
     });
 })
 
