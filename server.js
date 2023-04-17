@@ -40,9 +40,17 @@ app.get('/write', function(req, res){
 })
 
 app.post('/add', function(req, res){
-    db.collection('post').insertOne({title: req.body.title, date: req.body.date}, function(err, res2){
-        res.send('저장완료');
-    })
+    res.send('전송완료');
+    db.collection('counter').findOne({name: '게시물갯수'}, function(err, res2){
+        var totalPost = res2.totalPost;
+
+        db.collection('post').insertOne({_id: totalPost + 1, title: req.body.title, date: req.body.date}, function(err, res2){
+            res.send('저장완료');
+        })
+
+        //counter 콜렉션에 있는 totalPost 항목 1 증가
+        
+    });
 })
 
 app.get('/list', function(req, res){
