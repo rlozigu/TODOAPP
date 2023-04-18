@@ -67,3 +67,15 @@ app.get('/list', function(req, res){
          res.render('list.ejs', {posts: res1});
     });
 })
+
+
+app.delete('/delete', function(req, rep){
+    req.body._id = parseInt(req.body._id);
+    console.log(req.body);
+    db.collection('post').deleteOne(req.body, function(err, res){
+        if(err){
+            return console.log(err);
+        }
+        console.log('삭제완료');
+    });
+})
