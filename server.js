@@ -1,10 +1,14 @@
 //라이브러리 첨부
 const express = require('express');
+const { redirect } = require('express/lib/response');
 //객체 생성
 const app = express();
 app.use(express.urlencoded({extended: true}));
 
 const MongoClient = require('mongodb').MongoClient;
+
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'))
 app.set('view engine', 'ejs');
 
 var db;
@@ -36,7 +40,7 @@ app.get('/', function(req, res){
 })
 
 app.get('/write', function(req, res){
-    res.sendFile(__dirname + '/write.html');
+    res.render('write.ejs');
 })
 
 app.post('/add', function(req, res){
@@ -86,5 +90,25 @@ app.get('/detail/:id', function(request, response){
     db.collection('post').findOne({_id : parseInt(request.params.id)}, function(error, result){
         console.log(result);
         response.render('detail.ejs', {data: result});
+    })
+})
+
+app.get('/edit/:id', function(request, response){
+    db.collection('post').findOne({_id : parseInt(request.params.id)}, function(error, result){
+        if(result == null){
+            return response.status(400).send({messsage: '게시글없음'});
+        }
+        console.log(request.params.id);
+        response.render('edit.ejs', {data: result});
+    })
+})
+
+app.put('/edit', function(request, response){
+    db.collection('post').updateOne({_id: parseInt(request.body.id)}, { $set : {title: request.body.title, date: request.body.date}}, function(error, result){
+        if(error){
+            return error;
+        }
+        console.log('수정완료');
+        response.redirect('/list');
     })
 })
