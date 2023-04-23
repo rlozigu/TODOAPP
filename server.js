@@ -81,3 +81,10 @@ app.delete('/delete', function(req, rep){
         rep.status(200).send({messsage: '성공'});
     });
 })
+
+app.get('/detail/:id', function(request, response){
+    db.collection('post').findOne({_id : parseInt(request.params.id)}, function(error, result){
+        console.log(result);
+        response.render('detail.ejs', {data: result});
+    })
+})
