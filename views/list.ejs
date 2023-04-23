@@ -46,15 +46,22 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 <script>
     $('.delete').click(function(e){
+        //e.target = 지금 클릭한 것
+        //this = 지금 이벤트 동작하는 곳
         var postNum = e.target.dataset.id;
+
         $.ajax({
             method : 'DELETE',
             url : '/delete',
             data: {_id: postNum}
-        }).done(function(result){
-
-        }).fail(function(err){
-
+        }).done((result)=>{
+            console.log('성공성겅');
+            console.log($(this).parent('li'));
+            $(this).parent('li').fadeOut();         
+        }).fail(function(xhr, textStatus, errorThrown){
+            //요청 실패시 실행할 코드
+            //응답코드, 에러메세지 출력
+            console.log(xhr, textStatus, errorThrown);
         }); 
     })
 

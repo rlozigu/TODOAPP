@@ -77,5 +77,7 @@ app.delete('/delete', function(req, rep){
             return console.log(err);
         }
         console.log('삭제완료');
+        //응답 코드로 200 보내기
+        rep.status(200).send({messsage: '성공'});
     });
 })
