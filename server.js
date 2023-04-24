@@ -132,6 +132,24 @@ app.post('/login', passport.authenticate('local', {failureRedirect : '/fail'}), 
     response.redirect('/');
 })
 
+app.get('/fail', function(request, response){
+    response.render('fail.ejs');
+})
+
+app.get('/mypage', loginConfirm, function(request, response){
+    console.log(request.user)
+    response.render('mypage.ejs', {user: request.user});
+})
+
+
+function loginConfirm(request, response, next){
+    if(request.user){
+        next()
+    } else{
+        response.send('로그인해주세요.')
+    }
+}
+
 //LocalStrategy( { 설정 }, function(){ 아이디비번 검사하는 코드 } )
 passport.use(new LocalStrategy({
     usernameField: 'id', //사용자가 제출한 id
@@ -160,8 +178,13 @@ passport.serializeUser(function(user, done){
     done(null, user.id);
 });
 
-//세션 데이터를 가진 사람 DB에서 찾기 >> 마이페이지 접속시 발동
+//로그인한 유저의 개인정보를 DB에서 찾는 역할 >> 마이페이지 접속시 발동
 passport.deserializeUser(function(id, done){
-    done(null, {});
+    db.collection('login').findOne({ id: id }, function (에러, 결과) {
+        if (에러) return done(에러)
+        if (!결과) return done(null, false, { message: '존재하지 않는 아이디입니다.' })
+
+        done(null, 결과);
+    })   
 });
 
