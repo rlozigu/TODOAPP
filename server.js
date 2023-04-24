@@ -112,3 +112,56 @@ app.put('/edit', function(request, response){
         response.redirect('/list');
     })
 })
+
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+
+//app.use(미들웨어)
+//미들웨어: 요청 - 응답 중간에 뭔가 실행되는 코드
+app.use(session({secret: '비밀코드', resave : true, saveUninitialized: false}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.get('/login', function(request, response){
+    response.render('login.ejs');
+})
+
+app.post('/login', passport.authenticate('local', {failureRedirect : '/fail'}), function(request, response){
+    response.redirect('/');
+})
+
+//LocalStrategy( { 설정 }, function(){ 아이디비번 검사하는 코드 } )
+passport.use(new LocalStrategy({
+    usernameField: 'id', //사용자가 제출한 id
+    passwordField: 'pw', //사용자가 제출한 pw
+    session: true, //세션을 만들건지
+    passReqToCallback: false,//id, pw말고 다른 걸로(ex 이름) 검증하고 싶을 때 passReqToCallback: ture 하면 됨
+  }, function (입력한아이디, 입력한비번, done) {
+    //console.log(입력한아이디, 입력한비번);
+    db.collection('login').findOne({ id: 입력한아이디 }, function (에러, 결과) {
+        //done(서버에러, 성공시사용자DB데이터(실패시 false), 에러메세지)
+        if (에러) return done(에러)
+  
+        if (!결과) return done(null, false, { message: '존재하지 않는 아이디입니다.' })
+        //실무에선 암호화 필수!!
+        if (입력한비번 == 결과.pw) {
+            return done(null, 결과)
+        } else {
+            return done(null, false, { message: '비밀번호가 맞지않습니다.' })
+        }
+    })
+}));
+
+//id를 사용해 세션을 저장시키는 코드 > 로그인 성공시 발동
+//세션 데이터를 만들고 세션의 id정보를 쿠키로 보냄
+passport.serializeUser(function(user, done){
+    done(null, user.id);
+});
+
+//세션 데이터를 가진 사람 DB에서 찾기 >> 마이페이지 접속시 발동
+passport.deserializeUser(function(id, done){
+    done(null, {});
+});
+
