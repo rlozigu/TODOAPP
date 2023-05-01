@@ -11,13 +11,17 @@ const methodOverride = require('method-override');
 app.use(methodOverride('_method'))
 app.set('view engine', 'ejs');
 
+//환경변수 라이브러리 등록
+require('dotenv').config();
+
 var db;
-MongoClient.connect('mongodb+srv://admin:aaaiii123@cluster0.ree0v9d.mongodb.net/?retryWrites=true&w=majority', function(err, client){
+MongoClient.connect(process.env.DB_URL , function(err, client){
+
     if(err) return console.log(err);
     db = client.db('todoapp');
 
     //서버 생성(포트, 함수)
-    app.listen(8080, function(){
+    app.listen(process.env.PORT , function(){
         console .log('listening on 8080');
     });
 })
@@ -72,6 +76,18 @@ app.get('/list', function(req, res){
     });
 })
 
+
+app.get('/search', (request, response) => {
+    console.log(request.query)
+
+    db.collection('post').find({title:request.query.value}).toArray(function(err, result){
+        if(err){
+            console.log(err);
+        }
+
+        response.render('list.ejs', {posts: result});
+    });
+})
 
 app.delete('/delete', function(req, rep){
     req.body._id = parseInt(req.body._id);
