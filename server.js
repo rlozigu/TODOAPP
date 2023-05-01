@@ -79,8 +79,19 @@ app.get('/list', function(req, res){
 
 app.get('/search', (request, response) => {
     console.log(request.query)
-
-    db.collection('post').find({title:request.query.value}).toArray(function(err, result){
+    var searchString = [
+        {
+            $search: {
+              index: 'titleSearch',
+              text: {
+                query: request.query.value,
+                path: 'title'  // 제목날짜 둘다 찾고 싶으면 ['제목', '날짜']
+              }
+            }
+        },
+        { $sort: {_id: 1}}
+    ]
+    db.collection('post').aggregate(searchString).toArray(function(err, result){
         if(err){
             console.log(err);
         }
