@@ -138,6 +138,10 @@ app.get('/mypage', loginConfirm, function(request, response){
     response.render('mypage.ejs', {user: request.user});
 })
 
+app.get('/upload', function(request, response){
+    response.render('upload.ejs')
+})
+
 
 function loginConfirm(request, response, next){
     if(request.user){
@@ -236,3 +240,35 @@ app.delete('/delete', function(req, rep){
 // '/'경로로 요청했을 때 미들웨어 적용하기.(경로 없는 건 전역 미들웨어.)
 app.use('/shop', require('./routes/shop.js'))
 app.use('/board/sub', require('./routes/board.js'))
+
+let multer = require('multer');
+
+//멀티파일 램에 저장
+//var storage = multer.memoryStorage({})
+//하드에 저장
+var storage = multer.diskStorage({
+    destination : function(request, file, cb){
+        cb(null, './public/image')
+    },
+    filename: function(request, file, cb){
+        cb(null, file.originalname)
+    },
+    filefilter: function(req, file, cb){
+        //확장자 필터링
+    },
+    limits: function(req, file, cb){
+        //용량 등 제한
+    },
+})
+
+var upload = multer({storage: storage});
+
+//upload.single('input 컴포넌트의 name')
+//다중업로드: upload.array('input 컴포넌트의 name', 한 번에 받을 파일의 최대 갯수)
+app.post('/upload', upload.single('profile'), function(request, response){
+    response.send('업로드완료')
+})
+
+app.get('/image/:name', function(request, response){
+    response.sendFile(__dirname + '/public/image/' + request.params.name);
+})
