@@ -231,3 +231,8 @@ app.delete('/delete', function(req, rep){
         rep.status(200).send({messsage: '성공'});
     });
 })
+
+//server.js에 shop.js 라우터 첨부하기
+// '/'경로로 요청했을 때 미들웨어 적용하기.(경로 없는 건 전역 미들웨어.)
+app.use('/shop', require('./routes/shop.js'))
+app.use('/board/sub', require('./routes/board.js'))
