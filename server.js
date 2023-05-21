@@ -272,3 +272,24 @@ app.post('/upload', upload.single('profile'), function(request, response){
 app.get('/image/:name', function(request, response){
     response.sendFile(__dirname + '/public/image/' + request.params.name);
 })
+
+app.post('/chat', loginConfirm, function(request, response){
+    var data = {member: [request.body.user_id, request.user._id]
+                , date: new Date()
+                , title: '채팅방'}
+    db.collection('chatroom').insertOne(data, function(err, res2){
+        if(err) {
+            return err;
+        }
+        
+        response.send('채팅방 개설 완료');
+    })
+})
+
+app.get('/chat', loginConfirm, function(request, response){
+    db.collection('chatroom').find({member: request.user._id}).toArray().then((result) => {
+        console.log(result)
+        response.render('chat.ejs', {data: result})
+    })
+
+})
