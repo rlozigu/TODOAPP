@@ -293,3 +293,17 @@ app.get('/chat', loginConfirm, function(request, response){
     })
 
 })
+
+app.post('/message', function(request, response){
+
+    var data ={
+        parent: request.body.parent
+        , content: request.body.content
+        , userid : request.user._id
+        , date: new Date()
+    }
+
+    db.collection('message').insertOne(data).then(()=>{
+        response.send('DB저장성공')
+    })
+})
