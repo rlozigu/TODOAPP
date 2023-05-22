@@ -307,3 +307,31 @@ app.post('/message', function(request, response){
         response.send('DB저장성공')
     })
 })
+
+app.get('/message/:id', loginConfirm, function(request, response){
+    response.writeHead(200, {
+        "Connection": "keep-alive"
+        , "Content-Type": "text/event-stream"
+        , "Cache-Control": "no-cache"
+    })
+
+    db.collection('message').find({ parent : request.params.id}).toArray().then((result)=>{
+        //일반 get, post는 1회 요청, 1회 응답만 가능하지만 위의 헤더를 쓰면 여러번 응답 가능
+        response.write('event: test\n'); //event: 보낼 데이터 이름 + 개행문자
+        //서버에서 실시간 전송시 문자자료만 전송가능 => JSON.stringify로 형변환
+        response.write('data:' + JSON.stringify(result) +'\n\n'); //data: 보낼 데이터 + 개행문자 2개
+
+    })
+
+    const pipeline = [
+        { $match: {'fullDocument.parent' : request.params.id} }
+    ];
+      
+    const changeStream = db.collection('message').watch(pipeline); //콜렉션에 .watch()를 붙이면 실시간 감시해서 db에 변동이 생기면 아래 코드를 자동으로 실행해줌
+    
+    changeStream.on('change', (result) => {
+        console.log(result.fullDocument);
+        response.write('event: test\n');
+        response.write('data:' + JSON.stringify([result.fullDocument]) +'\n\n'); //data: 보낼 데이터 + 개행문자 2개
+    });
+})

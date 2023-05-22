@@ -48,10 +48,28 @@
 
   <script>
     var chatroom_id;
+    var event_source;
 
     $('.list-group-item').click(function(){
       chatroom_id = this.dataset.id;
-      console.log(chatroom_id);
+      $('.chat-content').html('');
+
+      if(event_source != undefined){
+        event_source.close()
+      }
+      
+      //실시간 데이터 수신
+      event_source = new EventSource('/message/' + chatroom_id);
+      //이벤트 리스너 부착
+      event_source.addEventListener('test', function(e){
+        console.log(e.data)
+        console.log(JSON.parse(e.data))
+
+        var chat_data = JSON.parse(e.data)
+        chat_data.forEach(function(i){
+          $('.chat-content').append('<li><span class="chat-box">' + i.content + '</span></li>');
+        });
+      })
     })
 
     $('#send').click(function(){
