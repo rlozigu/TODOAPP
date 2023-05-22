@@ -3,6 +3,11 @@ const express = require('express');
 const { redirect } = require('express/lib/response');
 //객체 생성
 const app = express();
+
+const http = require('http').createServer(app);
+const{Server} = require('socket.io');
+const io = new Server(http);
+
 app.use(express.urlencoded({extended: true}));
 
 const MongoClient = require('mongodb').MongoClient;
@@ -21,7 +26,7 @@ MongoClient.connect(process.env.DB_URL , function(err, client){
     db = client.db('todoapp');
 
     //서버 생성(포트, 함수)
-    app.listen(process.env.PORT , function(){
+    http.listen(process.env.PORT , function(){
         console .log('listening on 8080');
     });
 })
@@ -334,4 +339,18 @@ app.get('/message/:id', loginConfirm, function(request, response){
         response.write('event: test\n');
         response.write('data:' + JSON.stringify([result.fullDocument]) +'\n\n'); //data: 보낼 데이터 + 개행문자 2개
     });
+})
+
+app.get('/socket', function(request, response){
+    response.render('socket.ejs')
+})
+
+//누군가 웹소켓에 접속하면 실행할 이벤트리스너
+io.on('connection', function(socket){
+    console.log('유저 접속ㅎ')
+
+    //'user-send' 이름으로 메시지 보내면 안의 코드 실행
+    socket.on('user-send', function(data){
+        console.log(data)
+    })
 })
