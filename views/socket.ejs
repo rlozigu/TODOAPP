@@ -36,7 +36,11 @@
     </nav>
 
     <h4 class="ml-2 my-3">채팅방</h4>
+    <div id = "content"></div>
+    <input id="input1">
     <button id="send">서버에 메세지 보내기</button>
+    <button id="room1">채팅방1 입장</button>
+    <button id="room1-send">채팅방1에서 메세지 보내기</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
@@ -44,9 +48,24 @@
     <script>
         var socket = io();
 
+        $('room1-send').click(function(){
+            //socket으로 get/post요청 대체 가능
+            socket.emit('room1-send', '채팅방1에서메시지보내기')    
+        })
+
+        $('room1').click(function(){
+            //socket으로 get/post요청 대체 가능
+            socket.emit('join-room', '채팅방입장')    
+        })
+
         $('#send').click(function(){
             //서버에서 웹소켓으로 실시간 메세지 보내는법: socket.emit('작명', 메세지)
-            socket.emit('user-send', '안녕하삼요')
+            socket.emit('user-send', $('#input1').val())
+        })
+
+        socket.on('broadcast', function(data){
+            console.log(data)
+            $('#content').append('<div>' + data + '<div>')
         })
 
     </script>

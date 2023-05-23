@@ -349,8 +349,25 @@ app.get('/socket', function(request, response){
 io.on('connection', function(socket){
     console.log('유저 접속ㅎ')
 
+    socket.on('room1-send', function(data){
+        io.to('room1').emit(data)
+    })
+
+    socket.on('join-room', function(data){
+        //채팅방 생성 및 입장(방이름)
+        socket.join('room1');
+    })
+
     //'user-send' 이름으로 메시지 보내면 안의 코드 실행
     socket.on('user-send', function(data){
         console.log(data)
+        //서버 -> 유저에게 메시지 전송
+        io.emit('broadcast', data);
+
+        //서버 - 유저 한 명간 단독 통신
+        //socket.id는 소켓 접속할 때 사용되는 socket 파라미터에 정보 담겨있음
+        //io.to(socket.id).emit('broadcast, data)
     })
+    
+
 })
